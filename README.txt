@@ -3,8 +3,7 @@ Simple small team ToDo application, written in REACT
 Based on client certificate authentication -  user is identified by certificate details
 (auth based on simple user/password is technically possible, but would be added to api.php code)
 
-
-REQUIREMENT
+REQUIREMENTS
 Needs PHP and SQLITE3 on server, tested with NGINX
 
 INSTALLATION
