@@ -1,0 +1,73 @@
+{
+  "name": "WebTTD",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "./",
+  "dependencies": {
+    "@date-io/date-fns": "^2.13.1",
+    "@emotion/react": "^11.8.2",
+    "@emotion/styled": "^11.8.1",
+    "@fontsource/roboto": "^4.5.5",
+    "@mui/icons-material": "^5.5.1",
+    "@mui/lab": "^5.0.0-alpha.75",
+    "@mui/material": "^5.5.3",
+    "@mui/x-data-grid": "^5.9.0",
+    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "date-fns": "^2.28.0",
+    "leaflet": "^1.7.1",
+    "leaflet.markercluster": "^1.5.3",
+    "material-design-icons": "^3.0.1",
+    "mui-color": "^2.0.0-beta.2",
+    "react": "^17.0.2",
+    "react-color": "^2.19.3",
+    "react-dom": "^17.0.2",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-is-visible": "^1.2.0",
+    "react-leaflet": "^3.2.5",
+    "react-leaflet-custom-control": "^1.2.2",
+    "react-leaflet-markercluster": "^3.0.0-rc1",
+    "react-mui-color": "^0.2.1",
+    "react-scripts": "5.0.0",
+    "react-visibility-sensor": "^5.1.1",
+    "recharts": "^2.1.9",
+    "supercluster": "^7.1.5",
+    "typeface-roboto": "^1.1.13",
+    "use-supercluster": "^0.4.0",
+    "web-vitals": "^2.1.4",
+    "webpack": "~4.42.1",
+    "webpack-cli": "~3.3.11",
+    "zstandard-wasm": "^1.5.0-rev.5",
+    "zstd-codec": "^0.1.4"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
+  "scripts": {
+    "start": "HTTPS=true SSL_CRT_FILE=localhost.crt SSL_KEY_FILE=localhost.pem react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
