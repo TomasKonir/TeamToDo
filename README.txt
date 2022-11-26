@@ -1,4 +1,19 @@
+ABOUT
+Simple small team ToDo application, written in REACT
+Based on client certificate authentication -  user is identified by certificate details
+(auth based on simple user/password is technically possible, but would be added to api.php code)
 
+
+REQUIREMENT
+Needs PHP and SQLITE3 on server, tested with NGINX
+
+INSTALLATION
+npm run build
+Than copy content of build/ folder whenever you want.
+
+NOTES
+Tested under nginx, with config like below (need to pass TLS variables to PHP)
+Should work under properly configured apache too
 
 #nginx config
 geo $from_home {
