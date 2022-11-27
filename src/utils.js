@@ -1,4 +1,4 @@
-const fallbackLink = 'https://tomas.konir.tech/ttd-test/'
+const fallbackLink = 'https://tomas.konir.tech/ttd/'
 
 export async function sha256(message) {
     // encode as UTF-8
@@ -18,7 +18,7 @@ export function getAuth() {
     if (storage !== null) {
         let login = storage.getItem('login')
         let token = storage.getItem('token')
-        if (login !== undefined && login !== '' && token !== undefined && token !== '') {
+        if (login && login !== '' && token && token !== '') {
             ret = { 'X-AUTH': login + ':' + token }            
         }
     }

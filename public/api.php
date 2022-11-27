@@ -23,8 +23,9 @@ header('Access-Control-Allow-Origin: *');
 $cmd = "";
 $ret = array();
 $login = "";
+$isAdmin = false;
 $db = new SQLite3("data/db.sqlite");
-$db->exec("CREATE TABLE IF NOT EXISTS user(login VARCHAR NOT NULL, password VARCHAR)");
+$db->exec("CREATE TABLE IF NOT EXISTS user(login VARCHAR NOT NULL UNIQUE, password VARCHAR, isAdmin BOOL)");
 $db->exec("CREATE TABLE IF NOT EXISTS todo(login VARCHAR NOT NULL, category VARCHAR NOT NULL,data VARCHAR NOT NULL)");
 $db->exec("CREATE INDEX IF NOT EXISTS todo_idx ON todo(login)");
 
@@ -57,10 +58,12 @@ if (strlen($login) == 0) {
         die('Auth failed');
 }
 
-$query = $db->prepare("SELECT login FROM user WHERE login=:login");
+$query = $db->prepare("SELECT login,isAdmin FROM user WHERE login=:login");
 $query->bindValue(":login", $login);
 $result = $query->execute();
-if (!$result->fetchArray(SQLITE3_NUM)) {
+if ($row = $result->fetchArray(SQLITE3_NUM)) {
+        $isAdmin = $row[1];
+} else {
         $query = $db->prepare("INSERT INTO user(login) VALUES(:login)");
         $query->bindValue(":login", $login);
         $result = $query->execute();
@@ -128,8 +131,61 @@ if ($cmd == "loginList") {
         }
 }
 
-if($cmd == "me"){
+if ($cmd == "me") {
         $ret["login"] = $login;
+        $ret["isAdmin"] = $isAdmin;
+}
+
+if ($isAdmin) {
+        if ($cmd == "adminUserList") {
+                $query = $db->prepare("SELECT login,password,isAdmin FROM user ORDER BY login");
+                $result = $query->execute();
+                while ($row = $result->fetchArray(SQLITE3_NUM)) {
+                        $val = [];
+                        $val["login"] = $row[0];
+                        $val["hasPassword"] = strlen($row[1]) > 0;
+                        $val["isAdmin"] = $row[2];
+                        array_push($ret, $val);
+                }
+        } else if ($cmd == "adminUserOne" && isset($_GET["login"])) {
+                $query = $db->prepare("SELECT login,password,isAdmin FROM user WHERE login=:login");
+                $query->bindValue(":login", strtolower($_GET["login"]));
+                $result = $query->execute();
+                if ($row = $result->fetchArray(SQLITE3_NUM)) {
+                        $ret["login"] = $row[0];
+                        $ret["hasPassword"] = strlen($row[1]) > 0;
+                        $ret["isAdmin"] = $row[2];
+                }
+        } else if ($cmd == "adminUserAdd" && isset($_GET["login"])) {
+                $query = $db->prepare("INSERT INTO user(login) VALUES(:login)");
+                $query->bindValue(":login", strtolower($_GET["login"]));
+                $result = $query->execute();
+        } else if ($cmd == "adminUserDelete" && isset($_GET["login"])) {
+                $query = $db->prepare("DELETE FROM user WHERE login=:login");
+                $query->bindValue(":login", strtolower($_GET["login"]));
+                $result = $query->execute();
+                $query = $db->prepare("DELETE FROM todo WHERE login=:login");
+                $query->bindValue(":login", strtolower($_GET["login"]));
+                $result = $query->execute();
+        } else if ($cmd == "adminUserSetAdmin" && isset($_GET["login"]) && isset($_GET["admin"])) {
+                $query = $db->prepare("UPDATE user SET isAdmin=:isAdmin WHERE login=:login");
+                $query->bindValue(":isAdmin", $_GET["admin"] == "true");
+                $query->bindValue(":login", strtolower($_GET["login"]));
+                $result = $query->execute();
+        } else if ($cmd == "adminUserSetPassword" && isset($_GET["login"]) && isset($_GET["password"])) {
+                $set_password = $_GET["password"];
+                $set_login = $_GET["login"];
+                if (strlen($set_password) > 0) {
+                        $new_password = str_replace(['+', '/', '='], ['', '', ''], base64_encode(random_bytes(14)));
+                        $set_password = hash('sha256', $set_login . $new_password);
+                }
+                $query = $db->prepare("UPDATE user SET password=:password WHERE login=:login");
+                $query->bindValue(":password", $set_password);
+                $query->bindValue(":login", $set_login);
+                $result = $query->execute();
+                $ret["login"] = $set_login;
+                $ret["newPassword"] = $new_password;
+        }
 }
 
 $db->close();

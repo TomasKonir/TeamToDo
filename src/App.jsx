@@ -15,10 +15,12 @@ import Checkbox from '@mui/material/Checkbox';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 import Item from './Item'
 import ItemDialog from './ItemDialog'
 import Login from './Login'
+import ManageUsers from './ManageUsers';
 
 import { getJSON, setAuth, getAuth, clearAuth } from './utils';
 
@@ -64,6 +66,8 @@ class App extends React.Component {
       currentData: {},
       authNeeded: false,
       fetchFailed: false,
+      isAdmin: false,
+      manageUsersVisible: false,
     }
     this.getData = this.getData.bind(this)
     this.logon = this.logon.bind(this)
@@ -74,7 +78,7 @@ class App extends React.Component {
     this.getData()
   }
 
-  getData() {    
+  getData() {
     getJSON('api.php?cmd=list', (list) => {
       let options = []
       for (let i in list) {
@@ -83,21 +87,22 @@ class App extends React.Component {
       options.sort((a, b) => (a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())))
       this.setState({ list: list, options: options })
       this.setState({ authNeeded: false, fetchFailed: false })
-      getJSON('api.php?cmd=me',(me) => {
+      getJSON('api.php?cmd=me', (me) => {
         document.title = 'Team ToDo (' + me.login + ')'
+        this.setState({ isAdmin: me.isAdmin })
       })
     }, (status) => {
       if (status === 401) {
         this.setState({ authNeeded: true })
         clearAuth()
       } else {
-        this.setState({ fetchFailed: true, options: [], currentCategory: '', list: [], currentId: undefined, currentData: {} })        
+        this.setState({ isAdmin: false, fetchFailed: true, options: [], currentCategory: '', list: [], currentId: undefined, currentData: {} })
       }
     })
   }
 
   async logon(login, password) {
-    setAuth(login,password,this.getData)
+    setAuth(login, password, this.getData)
   }
 
   showCompletedSwitch() {
@@ -138,19 +143,33 @@ class App extends React.Component {
     }
     if (this.state.authNeeded) {
       content = <Login callback={this.logon} />
-    } else if(this.state.fetchFailed){
-      content = <div className='error'>SERVER ERROR</div>    
+    } else if (this.state.fetchFailed) {
+      content = <div className='error'>SERVER ERROR</div>
+    } else if (this.state.manageUsersVisible) {
+      content = <ManageUsers backClicked={() => this.setState({ manageUsersVisible: false })} />
     } else {
       let logout = undefined
-      if(getAuth()){
-        logout = <IconButton size='small' onClick={() => {
-          if (!window.confirm("Odhlásit ?")) {
-            return
-          }
-          clearAuth()
-          this.getData()
-        }}>
+      let manageUsers = undefined
+      if (getAuth()) {
+        logout = <IconButton
+          title='Odhlásit'
+          size='small'
+          onClick={() => {
+            if (!window.confirm("Odhlásit ?")) {
+              return
+            }
+            clearAuth()
+            this.getData()
+          }}>
           <LogoutIcon />
+        </IconButton>
+      }
+      if (this.state.isAdmin) {
+        manageUsers = <IconButton 
+          title='Nastavit uživatele'
+        size='small' 
+        onClick={() => this.setState({ manageUsersVisible: true })}>
+          <ManageAccountsIcon />
         </IconButton>
       }
       if (this.state.currentId !== undefined) {
@@ -164,7 +183,8 @@ class App extends React.Component {
       } else {
         content = <React.Fragment>
           <div className='header'>
-            {logout}            
+            {logout}
+            {manageUsers}
             <Autocomplete
               fullWidth
               size='small'
@@ -183,12 +203,15 @@ class App extends React.Component {
                 value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
               }}
             />
-            <IconButton size='small' onClick={
-              () => { this.setState({ currentId: -1, currentData: {} }) }
-            }>
+            <IconButton
+              title='Přidat úkol'
+              size='small'
+              onClick={
+                () => { this.setState({ currentId: -1, currentData: {} }) }
+              }>
               <AddCircleIcon />
             </IconButton>
-            <Checkbox size="small" checked={showCompleted} onChange={this.showCompletedSwitch} />            
+            <Checkbox title='Ukázat dokončené' size="small" checked={showCompleted} onChange={this.showCompletedSwitch} />
           </div>
           <div className='content'>
             {items}

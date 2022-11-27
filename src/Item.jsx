@@ -97,6 +97,7 @@ class ItemEntry extends React.Component {
             <div className='itemEntry'>
                 <div className='itemEntryHeader'>
                     <IconButton
+                        title='Priorita'
                         size='small'
                         onClick={
                             (event) => {
@@ -117,7 +118,7 @@ class ItemEntry extends React.Component {
                         {(this.state.expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
                     <div className='vcenter itemEntryName' onClick={() => { if (this.props.onEdit) this.props.onEdit(this.props.data) }}>{this.props.data.name}</div>
-                    <Checkbox style={{ marginLeft: 'auto' }} size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
+                    <Checkbox title='Hotovo?' style={{ marginLeft: 'auto' }} size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
                 </div>
                 {text}
                 <Menu

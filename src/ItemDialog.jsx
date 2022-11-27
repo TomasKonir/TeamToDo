@@ -93,7 +93,7 @@ class ItemDialog extends React.Component {
         return (
             <div className='itemDialog'>
                 <div className='itemDialogHeader'>
-                    <IconButton variant="contained" onClick={
+                    <IconButton title='Zpět' variant="contained" onClick={
                         () => {
                             if (this.props.onClose) {
                                 this.props.onClose()
@@ -102,7 +102,7 @@ class ItemDialog extends React.Component {
                     }>
                         <ArrowBackIcon />
                     </IconButton>
-                    <IconButton variant="contained" disabled={this.props.id <= 0} onClick={
+                    <IconButton title='Smazat úkol' variant="contained" disabled={this.props.id <= 0} onClick={
                         () => {
                             if (!window.confirm("Smazat úkol: " + this.state.name + "?")) {
                                 return
@@ -115,7 +115,7 @@ class ItemDialog extends React.Component {
                     }>
                         <DeleteIcon />
                     </IconButton>
-                    <IconButton variant="contained" disabled={this.state.category === undefined || this.state.category.length === 0 || this.state.name.length === 0} onClick={() => {
+                    <IconButton title='Použít' variant="contained" disabled={this.state.category === undefined || this.state.category.length === 0 || this.state.name.length === 0} onClick={() => {
                         if (this.props.onClose) {
                             this.props.onClose()
                         }
@@ -143,6 +143,7 @@ class ItemDialog extends React.Component {
                     />
                     <div className='flex-row'>
                         <Select
+                            title='Priorita'
                             size='small'
                             labelId="demo-simple-select-label"
                             style={{ backgroundColor: priorityColors[this.state.priority] }}
@@ -181,6 +182,7 @@ class ItemDialog extends React.Component {
                             onChange={(event, value) => value === null ? this.setState({}) : this.setState({ category: value })}
                         />
                         <IconButton
+                            title='Přidat kategorii'
                             disabled={this.state.targetUser !== undefined}
                             size='small'
                             onClick={
