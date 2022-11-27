@@ -1,7 +1,11 @@
 ABOUT
 Simple small team ToDo application, written in REACT
 Based on client certificate authentication -  user is identified by certificate details
-(auth based on simple user/password is technically possible, but would be added to api.php code)
+Added simple user administration (if you want to use it, you must create user in DB first)
+
+just run sqlite3 db.sqlite (database is created after first load)
+and than: INSERT INTO user(login,password,isAdmin) VALUES('admin','d82494f05d6917ba02f7aaa29689ccb444bb73f20380876cb05d1f37537b7892',true);
+
 
 REQUIREMENTS
 Needs PHP and SQLITE3 on server, tested with NGINX
