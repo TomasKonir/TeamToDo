@@ -61,5 +61,9 @@ server {
                         fastcgi_param TLS_CLIENT_VERIFIED $ssl_client_verify;
                         fastcgi_param TLS_CLIENT_DN $ssl_client_s_dn;
                 }
+                location /ttd/data/ {
+                        deny all;
+                        return 404;
+                }
         }
 }
