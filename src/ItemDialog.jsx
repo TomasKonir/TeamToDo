@@ -20,7 +20,7 @@ class ItemDialog extends React.Component {
     constructor(props) {
         super(props)
         let c = this.props.categories.concat([])
-        if(c.length === 0){
+        if (c.length === 0) {
             c = ["default"]
         }
         this.state = {
@@ -34,7 +34,7 @@ class ItemDialog extends React.Component {
         }
         this.accepted = this.accepted.bind(this)
         this.delete = this.delete.bind(this)
-        getJSON("api.php?cmd=userList",(json) => this.setState({userList : json}))
+        getJSON("api.php?cmd=loginList", (json) => this.setState({ userList: json }))
     }
 
     componentDidUpdate(prevProps) {
@@ -52,7 +52,7 @@ class ItemDialog extends React.Component {
                 userList: [],
                 targetUser: undefined,
             })
-            getJSON("api.php?cmd=userList", (json) => this.setState({ userList: json }))
+            getJSON("api.php?cmd=loginList", (json) => this.setState({ userList: json }))
         }
     }
 
@@ -66,22 +66,22 @@ class ItemDialog extends React.Component {
             post.ctime = new Date().getTime()
             post.id = -1
         }
-        if(this.state.targetUser !== undefined){
-            post.user = this.state.targetUser
+        if (this.state.targetUser !== undefined) {
+            post.login = this.state.targetUser
         }
 
-        postData('api.php?cmd=set',JSON.stringify(post),(result) =>{
+        postData('api.php?cmd=set', JSON.stringify(post), (result) => {
             if (this.props.onChange) {
                 this.props.onChange()
             }
-        })        
+        })
     }
 
-    delete(){        
+    delete() {
         if (this.props.id === -1) {
             return
         }
-        getData('api.php?cmd=delete&id=' + this.props.id,(data) => {
+        getData('api.php?cmd=delete&id=' + this.props.id, (data) => {
             if (this.props.onChange) {
                 this.props.onChange()
             }
@@ -129,7 +129,7 @@ class ItemDialog extends React.Component {
                         id="parent"
                         size='small'
                         fullWidth
-                        options={this.state.userList}                        
+                        options={this.state.userList}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
@@ -139,7 +139,7 @@ class ItemDialog extends React.Component {
                                 }}
                             />
                         )}
-                        onChange={(event, value) => value === null ? this.setState({targetUser : undefined}) : this.setState({ targetUser: value })}
+                        onChange={(event, value) => value === null ? this.setState({ targetUser: undefined }) : this.setState({ targetUser: value })}
                     />
                     <div className='flex-row'>
                         <Select
@@ -180,16 +180,19 @@ class ItemDialog extends React.Component {
                             )}
                             onChange={(event, value) => value === null ? this.setState({}) : this.setState({ category: value })}
                         />
-                        <IconButton size='small' onClick={
-                            () => {
-                                let add = prompt("Nová kategorie", "");
-                                if (add.length > 0) {
-                                    let c = this.state.categories
-                                    c.push(add)
-                                    this.setState({ categories: c, category: add })
+                        <IconButton
+                            disabled={this.state.targetUser !== undefined}
+                            size='small'
+                            onClick={
+                                () => {
+                                    let add = prompt("Nová kategorie", "");
+                                    if (add.length > 0) {
+                                        let c = this.state.categories
+                                        c.push(add)
+                                        this.setState({ categories: c, category: add })
+                                    }
                                 }
-                            }
-                        }>
+                            }>
                             <AddCircleIcon />
                         </IconButton>
                     </div>

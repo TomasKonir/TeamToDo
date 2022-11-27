@@ -59,6 +59,24 @@ pre {
   overflow: hidden;
 }
 
+.login {
+  display: flex;
+  flex-direction: column;
+  max-width: 18rem;
+  margin-top: 0.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error {
+  color: red;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
 .header {
   display: flex;
   align-items: center;

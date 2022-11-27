@@ -8,6 +8,8 @@ import Menu from '@mui/material/Menu';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
+import { postData } from './utils'
+
 let priorityColors = ["black", "red", "orangered", "salmon", "orange", "goldenrod", "yellowgreen", "lawngreen", "springgreen", "lightgreen"]
 
 export function formatDateTime(ts) {
@@ -43,39 +45,10 @@ class ItemEntry extends React.Component {
             expanded: false,
             menuVisible: false,
             anchorEl: undefined,
-        }
-        this.sendUpdate = this.sendUpdate.bind(this)
+        }        
         this.checked = this.checked.bind(this)
         this.priorityChanged = this.priorityChanged.bind(this)
-    }
-
-    sendUpdate(post) {
-        let link = 'api.php?cmd=set'
-        if (window.location.host === 'localhost:3000') {
-            link = 'http://localhost:3001/' + link
-        }
-        fetch(
-            link,
-            {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'text/plain'
-                },
-                body: JSON.stringify(post)
-            }
-        ).then(
-            response => {
-                if (this.props.onChange) {
-                    this.props.onChange()
-                }
-            }
-        ).catch(
-            error => {
-                console.error('error:', error)
-            }
-        );
-    }
+    }    
 
     checked(ch) {
         let post = this.props.data
@@ -84,14 +57,13 @@ class ItemEntry extends React.Component {
         } else {
             post.checkTime = undefined
         }
-
-        this.sendUpdate(post)
+        postData('api.php?cmd=set', JSON.stringify(post), this.props.onChange)
     }
 
     priorityChanged(prio) {
         let post = this.props.data
         post.priority = prio
-        this.sendUpdate(post)
+        postData('api.php?cmd=set', JSON.stringify(post), this.props.onChange)
         this.setState({ menuVisible: false })
     }
 
@@ -108,7 +80,7 @@ class ItemEntry extends React.Component {
             }
             text =
                 <div className='itemDetail'>
-                    <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader') }>{timeA} - {timeB}</div>
+                    <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader')}>{timeA} - {timeB}</div>
                     {this.props.data.text.length === 0 ? '' : <div className='itemDetailContent'><pre>{this.props.data.text}</pre></div>}
                 </div>
         }

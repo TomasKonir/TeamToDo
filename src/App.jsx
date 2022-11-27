@@ -14,11 +14,13 @@ import { IconButton } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import Item from './Item'
 import ItemDialog from './ItemDialog'
+import Login from './Login'
 
-import { getJSON } from './utils';
+import { getJSON, setAuth, getAuth, clearAuth } from './utils';
 
 const theme = createTheme({
   palette: {
@@ -60,8 +62,11 @@ class App extends React.Component {
       list: [],
       currentId: undefined,
       currentData: {},
+      authNeeded: false,
+      fetchFailed: false,
     }
     this.getData = this.getData.bind(this)
+    this.logon = this.logon.bind(this)
     this.showCompletedSwitch = this.showCompletedSwitch.bind(this)
   }
 
@@ -69,15 +74,30 @@ class App extends React.Component {
     this.getData()
   }
 
-  getData() {
-      getJSON('api.php?cmd=list',(list) => {        
-        let options = []
-        for (let i in list) {
-          options.push(i)
-        }
-        options.sort((a, b) => (a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())))
-        this.setState({ list: list, options: options })
-      })    
+  getData() {    
+    getJSON('api.php?cmd=list', (list) => {
+      let options = []
+      for (let i in list) {
+        options.push(i)
+      }
+      options.sort((a, b) => (a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())))
+      this.setState({ list: list, options: options })
+      this.setState({ authNeeded: false, fetchFailed: false })
+      getJSON('api.php?cmd=me',(me) => {
+        document.title = 'Team ToDo (' + me.login + ')'
+      })
+    }, (status) => {
+      if (status === 401) {
+        this.setState({ authNeeded: true })
+        clearAuth()
+      } else {
+        this.setState({ fetchFailed: true, options: [], currentCategory: '', list: [], currentId: undefined, currentData: {} })        
+      }
+    })
+  }
+
+  async logon(login, password) {
+    setAuth(login,password,this.getData)
   }
 
   showCompletedSwitch() {
@@ -88,7 +108,7 @@ class App extends React.Component {
         storage.setItem("showCompleted", "yes")
       } else {
         storage.setItem("showCompleted", sc === "yes" ? "no" : "yes")
-      }      
+      }
     }
     this.forceUpdate()
   }
@@ -111,51 +131,70 @@ class App extends React.Component {
         if (this.state.currentCategory === n) {
           expanded = true
         }
-        if(this.state.list[n]){
-          items.push(<Item entries={this.state.list[n]} name={n} key={n} expanded={expanded} showCompleted={showCompleted} onChange={this.getData} onEdit={(data) => this.setState({currentId : data.id, currentData: data})} />)
+        if (this.state.list[n]) {
+          items.push(<Item entries={this.state.list[n]} name={n} key={n} expanded={expanded} showCompleted={showCompleted} onChange={this.getData} onEdit={(data) => this.setState({ currentId: data.id, currentData: data })} />)
         }
       }
     }
-    if (this.state.currentId !== undefined) {
-      content = <ItemDialog
-        categories={this.state.options}
-        id={this.state.currentId}
-        data={this.state.currentData}
-        onClose={() => this.setState({ currentId: undefined, currentData: {} })}
-        onChange={this.getData}
-      />
+    if (this.state.authNeeded) {
+      content = <Login callback={this.logon} />
+    } else if(this.state.fetchFailed){
+      content = <div className='error'>SERVER ERROR</div>    
     } else {
-      content = <React.Fragment>
-        <div className='header'>
-          <IconButton size='small' onClick={
-            () => { this.setState({ currentId: -1, currentData: {} }) }
-          }>
-            <AddCircleIcon />
-          </IconButton>
-          <Autocomplete
-            fullWidth
-            size='small'
-            id="parent"
-            options={this.state.options}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={'Kategorie'}
-                InputProps={{
-                  ...params.InputProps,
-                }}
-              />
-            )}
-            onChange={(event, value) => {
-              value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
-            }}
-          />
-          <Checkbox size="small" checked={showCompleted} onChange={this.showCompletedSwitch}/>
-        </div>
-        <div className='content'>
-          {items}
-        </div>
-      </React.Fragment>
+      let logout = undefined
+      if(getAuth()){
+        logout = <IconButton size='small' onClick={() => {
+          if (!window.confirm("Odhlásit ?")) {
+            return
+          }
+          clearAuth()
+          this.getData()
+        }}>
+          <LogoutIcon />
+        </IconButton>
+      }
+      if (this.state.currentId !== undefined) {
+        content = <ItemDialog
+          categories={this.state.options}
+          id={this.state.currentId}
+          data={this.state.currentData}
+          onClose={() => this.setState({ currentId: undefined, currentData: {} })}
+          onChange={this.getData}
+        />
+      } else {
+        content = <React.Fragment>
+          <div className='header'>
+            {logout}            
+            <Autocomplete
+              fullWidth
+              size='small'
+              id="parent"
+              options={this.state.options}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={'Kategorie'}
+                  InputProps={{
+                    ...params.InputProps,
+                  }}
+                />
+              )}
+              onChange={(event, value) => {
+                value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
+              }}
+            />
+            <IconButton size='small' onClick={
+              () => { this.setState({ currentId: -1, currentData: {} }) }
+            }>
+              <AddCircleIcon />
+            </IconButton>
+            <Checkbox size="small" checked={showCompleted} onChange={this.showCompletedSwitch} />            
+          </div>
+          <div className='content'>
+            {items}
+          </div>
+        </React.Fragment>
+      }
     }
     return (
       <ThemeProvider theme={theme}>
