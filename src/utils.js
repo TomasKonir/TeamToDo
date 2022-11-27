@@ -18,7 +18,7 @@ export function getAuth() {
     if (storage !== null) {
         let login = storage.getItem('login')
         let token = storage.getItem('token')
-        if (login !== '' && token !== '') {
+        if (login !== undefined && login !== '' && token !== undefined && token !== '') {
             ret = { 'X-AUTH': login + ':' + token }            
         }
     }
