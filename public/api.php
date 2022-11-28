@@ -32,8 +32,8 @@ $db->exec("CREATE INDEX IF NOT EXISTS todo_idx ON todo(login)");
 if (isset($_SERVER['TLS_CLIENT_DN'])) {
         $TLS_DN = explode(",", $_SERVER['TLS_CLIENT_DN']);
         foreach ($TLS_DN as $v) {
-                if (str_starts_with($v, "O=")) {
-                        $login = strtolower(substr($v, 2));
+                if (str_starts_with($v, "CN=")) {
+                        $login = strtolower(substr($v, 3));
                         break;
                 }
         }
