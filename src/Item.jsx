@@ -213,6 +213,10 @@ class Item extends React.Component {
             }
         }
 
+        if(entries.length === 0){
+            return(<React.Fragment></React.Fragment>)
+        }
+
         return (
             <div className='item'>
                 <div className='itemHeader'>
