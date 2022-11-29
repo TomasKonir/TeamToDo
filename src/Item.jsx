@@ -192,6 +192,7 @@ class Item extends React.Component {
         let completed = 0
         let expanded = false
         let storage = window.localStorage
+        let count = 0
         if (storage !== null) {
             let e = storage.getItem("expanded-" + this.props.name)
             if (e != null) {
@@ -201,6 +202,9 @@ class Item extends React.Component {
 
         for (let i in this.props.entries) {
             let d = this.props.entries[i]
+            if(d.checkTime === undefined || this.props.showCompleted){
+                count++
+            }
             if (expanded || this.props.expanded) {
                 if (d.checkTime === undefined || this.props.showCompleted) {
                     entries.push(
@@ -213,7 +217,7 @@ class Item extends React.Component {
             }
         }
 
-        if(entries.length === 0){
+        if(count === 0){
             return(<React.Fragment></React.Fragment>)
         }
 
