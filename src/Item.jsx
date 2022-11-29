@@ -138,7 +138,7 @@ class ItemEntry extends React.Component {
                         {(expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
                     <div className='vcenter itemEntryName' onClick={() => { if (this.props.onEdit) this.props.onEdit(this.props.data) }}>{this.props.data.name}</div>
-                    <div style={{ marginLeft: 'auto' }}>
+                    <div className='flex-row' style={{ marginLeft: 'auto' }}>
                         {timeIcon}
                         <Checkbox title='Hotovo?' size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
                     </div>
