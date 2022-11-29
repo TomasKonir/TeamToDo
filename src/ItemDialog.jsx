@@ -199,7 +199,7 @@ class ItemDialog extends React.Component {
                         </IconButton>
                     </div>
                     <TextField
-                        label="Jméno"
+                        label="Název"
                         size='small'
                         value={this.state.name}
                         fullWidth
