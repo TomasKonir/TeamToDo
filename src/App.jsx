@@ -16,6 +16,7 @@ import Checkbox from '@mui/material/Checkbox';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import Item from './Item'
 import ItemDialog from './ItemDialog'
@@ -185,6 +186,12 @@ class App extends React.Component {
           <div className='header'>
             {logout}
             {manageUsers}
+            <IconButton
+              title='Obnovit'
+              size='small'
+              onClick={this.getData}>
+              <RefreshIcon />
+            </IconButton>
             <Autocomplete
               fullWidth
               size='small'
