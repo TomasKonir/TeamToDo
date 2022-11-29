@@ -19,7 +19,7 @@ export function getAuth() {
         let login = storage.getItem('login')
         let token = storage.getItem('token')
         if (login && login !== '' && token && token !== '') {
-            ret = { 'X-AUTH': login + ':' + token }            
+            ret = { 'X-AUTH': login + ':' + token }
         }
     }
     return (ret)
@@ -42,6 +42,37 @@ export function clearAuth() {
     if (storage !== null) {
         storage.setItem('login', '')
         storage.setItem('token', '')
+    }
+}
+
+export function isIdExpanded(id) {
+    let l = []
+    let storage = window.localStorage
+    if (storage !== null) {
+        l = JSON.parse(storage.getItem("expandedIdList"))
+        if(l === null){
+            l = []
+        }
+    }
+    return (l.includes(id))
+}
+
+export function switchIdExpanded(id) {
+    let storage = window.localStorage
+    if (storage !== null) {
+        let l = JSON.parse(storage.getItem("expandedIdList"))
+        if(l === null){
+            l = []
+        }
+        let index = l.indexOf(id)
+        if (index >= 0) {
+            l.splice(index, 1)
+
+        } else {
+            l.push(id)
+
+        }
+        storage.setItem("expandedIdList", JSON.stringify(l))
     }
 }
 

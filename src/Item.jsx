@@ -8,7 +8,7 @@ import Menu from '@mui/material/Menu';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
-import { postData } from './utils'
+import { postData, isIdExpanded, switchIdExpanded } from './utils'
 
 let priorityColors = ["black", "red", "orangered", "salmon", "orange", "goldenrod", "yellowgreen", "lawngreen", "springgreen", "lightgreen"]
 
@@ -19,7 +19,7 @@ export function formatDateTime(ts) {
     let t = new Date(ts)
     let h = t.getHours()
     let m = t.getMinutes()
-    let s = t.getSeconds()
+//    let s = t.getSeconds()
     let ret = ""
 
     ret += t.getDate() + "."
@@ -42,7 +42,6 @@ class ItemEntry extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            expanded: false,
             menuVisible: false,
             anchorEl: undefined,
         }        
@@ -69,7 +68,8 @@ class ItemEntry extends React.Component {
 
     render() {
         let text = undefined
-        if (this.state.expanded) {
+        let expanded = isIdExpanded(this.props.data.id)
+        if (expanded) {
             let timeA = ''
             let timeB = ''
             timeA = < div className='itemComplete margin-left' >{formatDateTime(this.props.data.ctime)}</div>
@@ -112,10 +112,11 @@ class ItemEntry extends React.Component {
                         size='small'
                         onClick={
                             () => {
-                                this.setState({ expanded: !this.state.expanded })
+                                switchIdExpanded(this.props.data.id)
+                                this.forceUpdate()                                
                             }
                         }>
-                        {(this.state.expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
+                        {(expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
                     <div className='vcenter itemEntryName' onClick={() => { if (this.props.onEdit) this.props.onEdit(this.props.data) }}>{this.props.data.name}</div>
                     <Checkbox title='Hotovo?' style={{ marginLeft: 'auto' }} size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
