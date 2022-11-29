@@ -7,6 +7,7 @@ import Menu from '@mui/material/Menu';
 
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 import { postData, isIdExpanded, switchIdExpanded } from './utils'
 
@@ -19,7 +20,7 @@ export function formatDateTime(ts) {
     let t = new Date(ts)
     let h = t.getHours()
     let m = t.getMinutes()
-//    let s = t.getSeconds()
+    //    let s = t.getSeconds()
     let ret = ""
 
     ret += t.getDate() + "."
@@ -43,11 +44,12 @@ class ItemEntry extends React.Component {
         super(props)
         this.state = {
             menuVisible: false,
+            timeVisible: false,
             anchorEl: undefined,
-        }        
+        }
         this.checked = this.checked.bind(this)
         this.priorityChanged = this.priorityChanged.bind(this)
-    }    
+    }
 
     checked(ch) {
         let post = this.props.data
@@ -68,19 +70,37 @@ class ItemEntry extends React.Component {
 
     render() {
         let text = undefined
+        let timeIcon = undefined
         let expanded = isIdExpanded(this.props.data.id)
         if (expanded) {
-            let timeA = ''
-            let timeB = ''
-            timeA = < div className='itemComplete margin-left' >{formatDateTime(this.props.data.ctime)}</div>
-            if (this.props.data.checkTime !== undefined) {
-                timeB = < div className='itemComplete margin-right-05rem' >{formatDateTime(this.props.data.checkTime)}</div >
-            } else {
-                timeB = < div className='itemInProgress margin-right-05rem' >TBD</div >
+            timeIcon = <IconButton
+                className='hoverHighlighted'
+                title='Čas'
+                size='small'
+                color={this.state.timeVisible ? 'success' : 'default'}
+                onClick={
+                    (event) => {
+                        this.setState({ timeVisible: !this.state.timeVisible });
+                    }
+                }
+            >
+                <AccessTimeIcon />
+            </IconButton>
+            let timeHeader = undefined
+            if (this.state.timeVisible) {
+                let timeA = ''
+                let timeB = ''
+                timeA = < div className='itemComplete margin-left' >{formatDateTime(this.props.data.ctime)}</div>
+                if (this.props.data.checkTime !== undefined) {
+                    timeB = < div className='itemComplete margin-right-05rem' >{formatDateTime(this.props.data.checkTime)}</div >
+                } else {
+                    timeB = < div className='itemInProgress margin-right-05rem' >TBD</div >
+                }
+                timeHeader = <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader')}>{timeA} - {timeB}</div>
             }
             text =
                 <div className='itemDetail'>
-                    <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader')}>{timeA} - {timeB}</div>
+                    {timeHeader}
                     {this.props.data.text.length === 0 ? '' : <div className='itemDetailContent'><pre>{this.props.data.text}</pre></div>}
                 </div>
         }
@@ -92,7 +112,6 @@ class ItemEntry extends React.Component {
                 </MenuItem>
             )
         }
-
         return (
             <div className='itemEntry'>
                 <div className='itemEntryHeader'>
@@ -113,13 +132,16 @@ class ItemEntry extends React.Component {
                         onClick={
                             () => {
                                 switchIdExpanded(this.props.data.id)
-                                this.forceUpdate()                                
+                                this.forceUpdate()
                             }
                         }>
                         {(expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
                     <div className='vcenter itemEntryName' onClick={() => { if (this.props.onEdit) this.props.onEdit(this.props.data) }}>{this.props.data.name}</div>
-                    <Checkbox title='Hotovo?' style={{ marginLeft: 'auto' }} size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
+                    <div style={{ marginLeft: 'auto' }}>
+                        {timeIcon}
+                        <Checkbox title='Hotovo?' size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
+                    </div>
                 </div>
                 {text}
                 <Menu
@@ -202,7 +224,7 @@ class Item extends React.Component {
 
         for (let i in this.props.entries) {
             let d = this.props.entries[i]
-            if(d.checkTime === undefined || this.props.showCompleted){
+            if (d.checkTime === undefined || this.props.showCompleted) {
                 count++
             }
             if (expanded || this.props.expanded) {
@@ -217,8 +239,8 @@ class Item extends React.Component {
             }
         }
 
-        if(count === 0){
-            return(<React.Fragment></React.Fragment>)
+        if (count === 0) {
+            return (<React.Fragment></React.Fragment>)
         }
 
         return (
