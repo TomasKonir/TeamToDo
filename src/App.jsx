@@ -80,7 +80,15 @@ class App extends React.Component {
   }
 
   getData() {
-    getJSON('api.php?cmd=list', (list) => {
+    let storage = window.localStorage
+    let sc = ''
+    if (storage !== null) {
+      let e = storage.getItem("showCompleted")
+      if (e != null && e === "yes") {
+        sc = '&all=1'
+      }
+    }
+    getJSON('api.php?cmd=list' + sc, (list) => {
       let options = []
       for (let i in list) {
         options.push(i)
@@ -116,7 +124,7 @@ class App extends React.Component {
         storage.setItem("showCompleted", sc === "yes" ? "no" : "yes")
       }
     }
-    this.forceUpdate()
+    this.getData()
   }
 
   render() {

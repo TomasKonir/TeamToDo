@@ -109,12 +109,16 @@ if ($cmd == "delete" && isset($_GET["id"])) {
 }
 
 if ($cmd == "list") {
+        $listAll = $_GET["all"] == 1;
         $query = $db->prepare("SELECT oid,category,data FROM todo WHERE login=:login");
         $query->bindValue(":login", $login);
         $result = $query->execute();
         while ($row = $result->fetchArray(SQLITE3_NUM)) {
                 $category = $row[1];
                 $val = json_decode($row[2], true);
+                if(!$listAll && isset($val["checkTime"])){
+                        continue;
+                }
                 $val["id"] = $row[0];
                 if (!isset($ret[$category])) {
                         $ret[$category] = array();
