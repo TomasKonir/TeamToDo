@@ -116,14 +116,14 @@ if ($cmd == "list") {
         while ($row = $result->fetchArray(SQLITE3_NUM)) {
                 $category = $row[1];
                 $val = json_decode($row[2], true);
-                if(!$listAll && isset($val["checkTime"])){
-                        continue;
-                }
-                $val["id"] = $row[0];
+                                
                 if (!isset($ret[$category])) {
                         $ret[$category] = array();
                 }
-                array_push($ret[$category], $val);
+                if ($listAll || !isset($val["checkTime"])) {
+                        $val["id"] = $row[0];
+                        array_push($ret[$category], $val);
+                }                
         }
 }
 
