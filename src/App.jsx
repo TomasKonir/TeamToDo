@@ -67,6 +67,7 @@ class App extends React.Component {
       currentData: {},
       userList: [],
       otherName: undefined,
+      othersEnabled : false,
       authNeeded: false,
       fetchFailed: false,
       isAdmin: false,
@@ -103,7 +104,7 @@ class App extends React.Component {
       this.setState({ authNeeded: false, fetchFailed: false })
       getJSON('api.php?cmd=me', (me) => {
         document.title = 'Team ToDo (' + me.login + ')'
-        this.setState({ isAdmin: me.isAdmin })
+        this.setState({ isAdmin: me.isAdmin, othersEnabled: me.othersEnabled })
       })
     }, (status) => {
       if (status === 401) {
@@ -207,6 +208,28 @@ class App extends React.Component {
           onChange={this.getData}
         />
       } else {
+        let others
+        if(this.state.othersEnabled){
+          others = <Autocomplete
+            id="parent"
+            size='small'
+            fullWidth
+            options={this.state.userList}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Jiný"
+                InputProps={{
+                  ...params.InputProps,
+                }}
+              />
+            )}
+            onChange={(event, value) => {
+              value === null ? this.setState({ otherName: undefined }) : this.setState({ otherName: value })
+              setTimeout(this.getData, 50)
+            }}
+          />
+        }
         content = <React.Fragment>
           <div className='header'>
             {logout}
@@ -235,25 +258,7 @@ class App extends React.Component {
                 value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
               }}
             />
-            <Autocomplete
-              id="parent"
-              size='small'
-              fullWidth
-              options={this.state.userList}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Jiný"
-                  InputProps={{
-                    ...params.InputProps,
-                  }}
-                />
-              )}
-              onChange={(event, value) => {
-                value === null ? this.setState({ otherName: undefined }) : this.setState({ otherName: value })
-                setTimeout(this.getData, 50)
-              }}
-            />
+            {others}
             <IconButton
               title='Přidat úkol'
               size='small'

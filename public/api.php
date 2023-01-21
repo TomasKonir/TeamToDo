@@ -147,6 +147,7 @@ if ($cmd == "loginList") {
 if ($cmd == "me") {
         $ret["login"] = $login;
         $ret["isAdmin"] = $isAdmin;
+        $ret["othersEnabled"] = $othersEnabled;
 }
 
 if ($isAdmin) {
