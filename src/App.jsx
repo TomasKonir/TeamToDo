@@ -218,7 +218,7 @@ class App extends React.Component {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Jiný"
+                label="Uživatel"
                 InputProps={{
                   ...params.InputProps,
                 }}
