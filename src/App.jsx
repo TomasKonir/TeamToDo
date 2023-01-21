@@ -65,6 +65,8 @@ class App extends React.Component {
       list: [],
       currentId: undefined,
       currentData: {},
+      userList: [],
+      otherName: undefined,
       authNeeded: false,
       fetchFailed: false,
       isAdmin: false,
@@ -88,6 +90,9 @@ class App extends React.Component {
         sc = '&all=1'
       }
     }
+    if (this.state.otherName) {
+      sc += '&otherName=' + this.state.otherName
+    }
     getJSON('api.php?cmd=list' + sc, (list) => {
       let options = []
       for (let i in list) {
@@ -108,6 +113,7 @@ class App extends React.Component {
         this.setState({ isAdmin: false, fetchFailed: true, options: [], currentCategory: '', list: [], currentId: undefined, currentData: {} })
       }
     })
+    getJSON("api.php?cmd=loginList", (json) => this.setState({ userList: json }))
   }
 
   async logon(login, password) {
@@ -146,7 +152,18 @@ class App extends React.Component {
           expanded = true
         }
         if (this.state.list[n]) {
-          items.push(<Item entries={this.state.list[n]} name={n} key={n} expanded={expanded} showCompleted={showCompleted} onChange={this.getData} onEdit={(data) => this.setState({ currentId: data.id, currentData: data })} />)
+          items.push(
+            <Item
+              entries={this.state.list[n]}
+              name={n}
+              key={n}
+              expanded={expanded}
+              showCompleted={showCompleted}
+              readOnly={this.state.otherName !== undefined}
+              onChange={this.getData}
+              onEdit={(data) => this.setState({ currentId: data.id, currentData: data })}
+            />
+          )
         }
       }
     }
@@ -174,10 +191,10 @@ class App extends React.Component {
         </IconButton>
       }
       if (this.state.isAdmin) {
-        manageUsers = <IconButton 
+        manageUsers = <IconButton
           title='Nastavit uživatele'
-        size='small' 
-        onClick={() => this.setState({ manageUsersVisible: true })}>
+          size='small'
+          onClick={() => this.setState({ manageUsersVisible: true })}>
           <ManageAccountsIcon />
         </IconButton>
       }
@@ -218,9 +235,29 @@ class App extends React.Component {
                 value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
               }}
             />
+            <Autocomplete
+              id="parent"
+              size='small'
+              fullWidth
+              options={this.state.userList}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Jiný"
+                  InputProps={{
+                    ...params.InputProps,
+                  }}
+                />
+              )}
+              onChange={(event, value) => {
+                value === null ? this.setState({ otherName: undefined }) : this.setState({ otherName: value })
+                setTimeout(this.getData, 50)
+              }}
+            />
             <IconButton
               title='Přidat úkol'
               size='small'
+              disabled={this.state.otherName !== undefined}
               onClick={
                 () => { this.setState({ currentId: -1, currentData: {} }) }
               }>

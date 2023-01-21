@@ -118,6 +118,7 @@ class ItemEntry extends React.Component {
                     <IconButton
                         title='Priorita'
                         size='small'
+                        disabled={this.props.readOnly}
                         onClick={
                             (event) => {
                                 this.setState({ anchorEl: event.currentTarget, menuVisible: true });
@@ -137,10 +138,18 @@ class ItemEntry extends React.Component {
                         }>
                         {(expanded || this.props.expanded) ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
                     </IconButton>
-                    <div className='vcenter itemEntryName' onClick={() => { if (this.props.onEdit) this.props.onEdit(this.props.data) }}>{this.props.data.name}</div>
+                    <div
+                        className='vcenter itemEntryName'
+                        onClick={() => {
+                            if (this.props.onEdit && !this.props.readOnly) {
+                                this.props.onEdit(this.props.data)
+                            }
+                        }}>
+                        {this.props.data.name}
+                    </div>
                     <div className='flex-row' style={{ marginLeft: 'auto' }}>
                         {timeIcon}
-                        <Checkbox title='Hotovo?' size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
+                        <Checkbox disabled={this.props.readOnly} title='Hotovo?' size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
                     </div>
                 </div>
                 {text}
@@ -230,7 +239,7 @@ class Item extends React.Component {
             if (expanded || this.props.expanded) {
                 if (d.checkTime === undefined || this.props.showCompleted) {
                     entries.push(
-                        <ItemEntry key={d.id} data={d} onChange={this.props.onChange} onEdit={this.props.onEdit} />
+                        <ItemEntry key={d.id} data={d} onChange={this.props.onChange} onEdit={this.props.onEdit} readOnly={this.props.readOnly} />
                     )
                 }
             }

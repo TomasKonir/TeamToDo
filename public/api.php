@@ -24,6 +24,7 @@ $cmd = "";
 $ret = array();
 $login = "";
 $isAdmin = false;
+$othersEnabled = true;
 $db = new SQLite3("data/db.sqlite");
 $db->exec("CREATE TABLE IF NOT EXISTS user(login VARCHAR NOT NULL UNIQUE, password VARCHAR, isAdmin BOOL)");
 $db->exec("CREATE TABLE IF NOT EXISTS todo(login VARCHAR NOT NULL, category VARCHAR NOT NULL,data VARCHAR NOT NULL)");
@@ -73,7 +74,11 @@ if (isset($_GET["cmd"])) {
         $cmd = $_GET["cmd"];
 }
 
-if ($cmd == "set") {
+if($othersEnabled && isset($_GET["otherName"])){
+        $otherName = $_GET["otherName"];
+}
+
+if ($cmd == "set" && !isset($otherName)) {
         $val = json_decode(file_get_contents('php://input'), true);
         $id = $val["id"];
         $target_login = $login;
@@ -101,7 +106,7 @@ if ($cmd == "set") {
         }
 }
 
-if ($cmd == "delete" && isset($_GET["id"])) {
+if ($cmd == "delete" && isset($_GET["id"]) && !isset($otherName)) {
         $id = $_GET["id"];
         $query = $db->prepare("DELETE FROM todo WHERE oid=:oid");
         $query->bindValue(":oid", $id);
@@ -111,19 +116,23 @@ if ($cmd == "delete" && isset($_GET["id"])) {
 if ($cmd == "list") {
         $listAll = $_GET["all"] == 1;
         $query = $db->prepare("SELECT oid,category,data FROM todo WHERE login=:login");
-        $query->bindValue(":login", $login);
+        if(isset($otherName)){
+                $query->bindValue(":login", $otherName);
+        } else {
+                $query->bindValue(":login", $login);
+        }
         $result = $query->execute();
         while ($row = $result->fetchArray(SQLITE3_NUM)) {
                 $category = $row[1];
                 $val = json_decode($row[2], true);
-                                
+
                 if (!isset($ret[$category])) {
                         $ret[$category] = array();
                 }
                 if ($listAll || !isset($val["checkTime"])) {
                         $val["id"] = $row[0];
                         array_push($ret[$category], $val);
-                }                
+                }
         }
 }
 
