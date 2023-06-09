@@ -56,6 +56,11 @@ pre {
   opacity: 1;
 }
 
+.vcenter {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
 .body {
   border-radius: 0;
   display: flex;

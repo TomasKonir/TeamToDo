@@ -1,13 +1,13 @@
 import React from 'react'
 
-import { IconButton } from '@mui/material';
-import Checkbox from '@mui/material/Checkbox';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
+import { IconButton } from '@mui/material'
+import Checkbox from '@mui/material/Checkbox'
+import MenuItem from '@mui/material/MenuItem'
+import Menu from '@mui/material/Menu'
 
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
 import { postData, isIdExpanded, switchIdExpanded } from './utils'
 
@@ -72,37 +72,40 @@ class ItemEntry extends React.Component {
         let text = undefined
         let timeIcon = undefined
         let expanded = isIdExpanded(this.props.data.id)
-        if (expanded) {
-            timeIcon = <IconButton
-                className='hoverHighlighted'
-                title='Čas'
-                size='small'
-                color={this.state.timeVisible ? 'success' : 'default'}
-                onClick={
-                    (event) => {
-                        this.setState({ timeVisible: !this.state.timeVisible });
-                    }
+        timeIcon = <IconButton
+            className='hoverHighlighted'
+            title='Čas'
+            size='small'
+            color={this.state.timeVisible ? 'success' : 'default'}
+            onClick={
+                (event) => {
+                    this.setState({ timeVisible: !this.state.timeVisible })
                 }
-            >
-                <AccessTimeIcon />
-            </IconButton>
-            let timeHeader = undefined
-            if (this.state.timeVisible) {
-                let timeA = ''
-                let timeB = ''
-                timeA = < div className='itemComplete margin-left' >{formatDateTime(this.props.data.ctime)}</div>
-                if (this.props.data.checkTime !== undefined) {
-                    timeB = < div className='itemComplete margin-right-05rem' >{formatDateTime(this.props.data.checkTime)}</div >
-                } else {
-                    timeB = < div className='itemInProgress margin-right-05rem' >TBD</div >
-                }
-                timeHeader = <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader')}>{timeA} - {timeB}</div>
             }
-            text =
-                <div className='itemDetail'>
-                    {timeHeader}
-                    {this.props.data.text.length === 0 ? '' : <div className='itemDetailContent'><pre>{this.props.data.text}</pre></div>}
-                </div>
+        >
+            <AccessTimeIcon />
+        </IconButton>
+        let timeHeader = undefined
+        if (this.state.timeVisible) {
+            let timeA = ''
+            let timeB = ''
+            timeA = < div className='itemComplete margin-left' >{formatDateTime(this.props.data.ctime)}</div>
+            if (this.props.data.checkTime !== undefined) {
+                timeB = < div className='itemComplete margin-right-05rem' >{formatDateTime(this.props.data.checkTime)}</div >
+            } else {
+                timeB = < div className='itemInProgress margin-right-05rem' >TBD</div >
+            }
+            timeHeader = <div className={'flex-row ' + (this.props.data.text.length === 0 ? 'itemDetailHeaderEmpty' : 'itemDetailHeader')}>{timeA} - {timeB}</div>
+        }
+        if (expanded) {
+            text = <div className='itemDetail'>
+                {timeHeader}
+                {this.props.data.text.length === 0 ? '' : <div className='itemDetailContent'><pre>{this.props.data.text}</pre></div>}
+            </div>
+        } else if (timeHeader !== undefined) {
+            text = <div className='itemDetail'>
+                {timeHeader}
+            </div>
         }
         let menuItems = []
         for (let i = 1; i < 10; i++) {
@@ -121,7 +124,7 @@ class ItemEntry extends React.Component {
                         disabled={this.props.readOnly}
                         onClick={
                             (event) => {
-                                this.setState({ anchorEl: event.currentTarget, menuVisible: true });
+                                this.setState({ anchorEl: event.currentTarget, menuVisible: true })
                             }
                         }
                         style={{ backgroundColor: priorityColors[this.props.data.priority] }}
@@ -130,6 +133,8 @@ class ItemEntry extends React.Component {
                     </IconButton>
                     <IconButton
                         size='small'
+                        disabled={this.props.data.text.length === 0}
+                        sx={this.props.data.text.length === 0 ? { opacity: 0 } : {}}
                         onClick={
                             () => {
                                 switchIdExpanded(this.props.data.id)
@@ -148,6 +153,7 @@ class ItemEntry extends React.Component {
                         {this.props.data.name}
                     </div>
                     <div className='flex-row' style={{ marginLeft: 'auto' }}>
+                        {this.props.showCategory ? <div className='vcenter'>{this.props.data.category}</div> : ''}
                         {timeIcon}
                         <Checkbox disabled={this.props.readOnly} title='Hotovo?' size="small" checked={this.props.data.checkTime !== undefined} onChange={(ev) => this.checked(ev.target.checked)} />
                     </div>
@@ -160,7 +166,7 @@ class ItemEntry extends React.Component {
                 >
                     {menuItems}
                 </Menu>
-            </div >
+            </div>
         )
     }
 }
@@ -173,12 +179,6 @@ class Item extends React.Component {
             entries: this.sort(props.entries),
         }
         this.expand = this.expand.bind(this)
-    }
-
-    componentDidUpdate(prevProps) {
-        if (prevProps.entries !== this.props.entries) {
-            this.setState({ entries: this.sort(this.props.entries) })
-        }
     }
 
     sort(list) {
@@ -231,15 +231,18 @@ class Item extends React.Component {
             }
         }
 
-        for (let i in this.props.entries) {
-            let d = this.props.entries[i]
+        let pe = this.sort(this.props.entries)
+        console.info(JSON.stringify(pe, null, ' '))
+
+        for (let i in pe) {
+            let d = pe[i]
             if (d.checkTime === undefined || this.props.showCompleted) {
                 count++
             }
             if (expanded || this.props.expanded) {
                 if (d.checkTime === undefined || this.props.showCompleted) {
                     entries.push(
-                        <ItemEntry key={d.id} data={d} onChange={this.props.onChange} onEdit={this.props.onEdit} readOnly={this.props.readOnly} />
+                        <ItemEntry key={d.id} data={d} onChange={this.props.onChange} onEdit={this.props.onEdit} readOnly={this.props.readOnly} showCategory={this.props.showCategory} />
                     )
                 }
             }
