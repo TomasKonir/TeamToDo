@@ -5,27 +5,30 @@ import React from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 
 import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import 'dayjs/locale/cs'
+
 
 import { Paper } from '@mui/material'
 
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { IconButton } from '@mui/material'
-import Checkbox from '@mui/material/Checkbox'
 
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import LogoutIcon from '@mui/icons-material/Logout'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import SegmentIcon from '@mui/icons-material/Segment'
-import ReorderIcon from '@mui/icons-material/Reorder'
+import SettingsIcon from '@mui/icons-material/Settings'
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 
 import Item from './Item'
 import ItemDialog from './ItemDialog'
 import Login from './Login'
 import ManageUsers from './ManageUsers'
 
-import { getJSON, setAuth, getAuth, clearAuth } from './utils'
+import { getData, getJSON, setAuth, getAuth, clearAuth } from './utils'
 
 const theme = createTheme({
     palette: {
@@ -44,7 +47,13 @@ const theme = createTheme({
         },
         default: {
             main: '#43444A',
-        }
+        },
+        blue: {
+            main: '#6495ED',
+        },
+        gray: {
+            main: '#333'
+        },
     },
     typography: {
         button: {
@@ -62,8 +71,6 @@ class App extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            options: [],
-            currentCategory: '',
             list: [],
             currentId: undefined,
             currentData: {},
@@ -74,7 +81,6 @@ class App extends React.Component {
             fetchFailed: false,
             isAdmin: false,
             manageUsersVisible: false,
-            segmented: true,
         }
         this.getData = this.getData.bind(this)
         this.logon = this.logon.bind(this)
@@ -86,6 +92,7 @@ class App extends React.Component {
     }
 
     getData() {
+        console.info('get data')
         let storage = window.localStorage
         let sc = ''
         if (storage !== null) {
@@ -97,24 +104,19 @@ class App extends React.Component {
         if (this.state.otherName) {
             sc += '&otherName=' + this.state.otherName
         }
-        getJSON('api.php?cmd=list' + sc, (list) => {
-            let options = []
-            for (let i in list) {
-                options.push(i)
-            }
-            options.sort((a, b) => (a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase())))
-            this.setState({ list: list, options: options })
-            this.setState({ authNeeded: false, fetchFailed: false })
-            getJSON('api.php?cmd=me', (me) => {
-                document.title = 'Team ToDo (' + me.login + ')'
-                this.setState({ isAdmin: me.isAdmin, othersEnabled: me.othersEnabled })
+        getJSON('api.php?cmd=me', (me) => {
+            document.title = 'Team ToDo (' + me.login + ')'
+            this.setState({ authNeeded: false, fetchFailed: false, isAdmin: me.isAdmin, othersEnabled: me.othersEnabled })
+            getJSON('api.php?cmd=list' + sc, (list) => {
+                console.info(JSON.stringify(list, undefined, 2))
+                this.setState({ list: list })
             })
         }, (status) => {
             if (status === 401) {
                 this.setState({ authNeeded: true })
                 clearAuth()
             } else {
-                this.setState({ isAdmin: false, fetchFailed: true, options: [], currentCategory: '', list: [], currentId: undefined, currentData: {} })
+                this.setState({ isAdmin: false, fetchFailed: true, list: [], currentId: undefined, currentData: {} })
             }
         })
         getJSON("api.php?cmd=loginList", (json) => this.setState({ userList: json }))
@@ -134,7 +136,8 @@ class App extends React.Component {
                 storage.setItem("showCompleted", sc === "yes" ? "no" : "yes")
             }
         }
-        this.getData()
+        this.setState({ otherName: undefined })
+        setTimeout(this.getData, 50)
     }
 
     render() {
@@ -142,53 +145,33 @@ class App extends React.Component {
         let content = undefined
         let showCompleted = false
         let storage = window.localStorage
+        let unchecked = 0
         if (storage !== null) {
             let e = storage.getItem("showCompleted")
             if (e != null) {
                 showCompleted = e === "yes"
             }
         }
-        let fullList = []
-        for (let i in this.state.options) {
-            let n = this.state.options[i]
-            if (this.state.currentCategory === '' || this.state.currentCategory === n) {
-                let expanded = false
-                if (this.state.currentCategory === n) {
-                    expanded = true
-                }
-                if (this.state.list[n]) {
-                    if (this.state.segmented) {
-                        items.push(
-                            <Item
-                                entries={this.state.list[n]}
-                                name={n}
-                                key={n}
-                                expanded={expanded}
-                                showCompleted={showCompleted}
-                                readOnly={this.state.otherName !== undefined}
-                                onChange={this.getData}
-                                onEdit={(data) => this.setState({ currentId: data.id, currentData: data })}
-                            />
-                        )
-                    } else {
-                        fullList.push(...this.state.list[n])
-                    }
-                }
+        for (let i in this.state.list) {
+            let n = this.state.list[i]
+            if (n.checkTime !== undefined && !showCompleted) {
+                continue
             }
+            unchecked += n.unchecked
+            items = items.concat(
+                <Item
+                    data={n}
+                    key={n.id}
+                    level={0}
+                    showCompleted={showCompleted}
+                    readOnly={this.state.otherName !== undefined}
+                    onChange={this.getData}
+                    onEdit={(data) => this.setState({ currentId: data.id, currentData: data })}
+                    onAdd={(data) => this.setState({ currentId: -1, currentData: data })}
+                />
+            )
         }
-        if(fullList.length > 0){
-            items.push(<Item
-                entries={fullList}
-                name=''
-                key='FULL'
-                showCategory
-                expanded={true}
-                showCompleted={showCompleted}
-                readOnly={this.state.otherName !== undefined}
-                onChange={this.getData}
-                onEdit={(data) => this.setState({ currentId: data.id, currentData: data })}
-            />)
-        }
+
         if (this.state.authNeeded) {
             content = <Login callback={this.logon} />
         } else if (this.state.fetchFailed) {
@@ -230,7 +213,7 @@ class App extends React.Component {
                 />
             } else {
                 let others
-                if (this.state.othersEnabled) {
+                if (this.state.othersEnabled && showCompleted) {
                     others = <Autocomplete
                         id="parent"
                         size='small'
@@ -239,6 +222,7 @@ class App extends React.Component {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
+                                size='small'
                                 label="Uživatel"
                                 InputProps={{
                                     ...params.InputProps,
@@ -250,6 +234,26 @@ class App extends React.Component {
                             setTimeout(this.getData, 50)
                         }}
                     />
+                } else {
+                    others = <b className='spacer'>Zbývá: {unchecked}</b>
+                }
+                let addButton
+                if (showCompleted) {
+                    addButton = <IconButton
+                        title='Vyčistit hotové'
+                        size='small'
+                        onClick={
+                            () => {
+                                if (!window.confirm("Vyčistit všechny hotové úkoly?")) {
+                                    return
+                                }
+                                getData('api.php?cmd=cleanup', (data) => {
+                                    this.getData()
+                                })
+                            }
+                        }>
+                        <CleaningServicesIcon />
+                    </IconButton>
                 }
                 content = <React.Fragment>
                     <div className='header'>
@@ -261,27 +265,10 @@ class App extends React.Component {
                             onClick={this.getData}>
                             <RefreshIcon />
                         </IconButton>
-                        <Autocomplete
-                            fullWidth
-                            size='small'
-                            id="parent"
-                            options={this.state.options}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label={'Kategorie'}
-                                    InputProps={{
-                                        ...params.InputProps,
-                                    }}
-                                />
-                            )}
-                            onChange={(event, value) => {
-                                value === null ? this.setState({ currentCategory: '' }) : this.setState({ currentCategory: value })
-                            }}
-                        />
                         {others}
+                        {addButton}
                         <IconButton
-                            title='Přidat úkol'
+                            title='Přidat top level úkol'
                             size='small'
                             disabled={this.state.otherName !== undefined}
                             onClick={
@@ -290,15 +277,13 @@ class App extends React.Component {
                             <AddCircleIcon />
                         </IconButton>
                         <IconButton
-                            title='Dohromady/Po sekcích'
+                            title='Nastavení'
                             size='small'
-                            onClick={
-                                () => { this.setState({ segmented: !this.state.segmented }) }
-                            }
+                            onClick={this.showCompletedSwitch}
+                            color={showCompleted ? 'success' : undefined}
                         >
-                            {this.state.segmented ? <SegmentIcon /> : <ReorderIcon />}
+                            <SettingsIcon />
                         </IconButton>
-                        <Checkbox title='Ukázat dokončené' size="small" checked={showCompleted} onChange={this.showCompletedSwitch} />
                     </div>
                     <div className='content'>
                         {items}
@@ -308,10 +293,12 @@ class App extends React.Component {
         }
         return (
             <ThemeProvider theme={theme}>
-                <CssBaseline key="css" />
-                <Paper className={window.isMobile ? 'body-mobile' : 'body'} sx={{ borderRadius: 0 }}>
-                    {content}
-                </Paper>
+                <LocalizationProvider dateAdapter={AdapterDayjs} locale='cs'>
+                    <CssBaseline key="css" />
+                    <Paper className={window.isMobile ? 'body-mobile' : 'body'} sx={{ backgroundColor: 'black' }} square>
+                        {content}
+                    </Paper>
+                </LocalizationProvider>
             </ThemeProvider>
         )
     }

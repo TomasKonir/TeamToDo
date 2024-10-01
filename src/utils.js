@@ -1,4 +1,6 @@
-const fallbackLink = 'https://tomas.konir.tech/ttd/'
+const fallbackLink = 'http://localhost:3001/'
+
+export let priorityColors = ["transparent", "#FF000088", "#AA000088", "#88000088", "#77770088", "#AAAA0088", "#EEEE0088", "#00440088", "#00880088", "#00FF0088"]
 
 export async function sha256(message) {
     // encode as UTF-8
@@ -7,7 +9,7 @@ export async function sha256(message) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     // convert ArrayBuffer to Array
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    // convert bytes to hex string                  
+    // convert bytes to hex string
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     return hashHex;
 }
@@ -44,6 +46,19 @@ export function clearAuth() {
         storage.setItem('token', '')
     }
 }
+
+export function unixTimeToDateString(tt) {
+    if(tt === undefined){
+        return(null)
+    }
+    let ts = new Date(tt)
+    let mon = ts.getMonth() + 1
+    let day = ts.getDate()
+    //format date
+    let ret = day + '.' + mon + '.' + ts.getUTCFullYear()
+    return (ret)
+}
+
 
 export function isIdExpanded(id) {
     let l = []
@@ -96,6 +111,7 @@ export function getData(link, callback, errCallback) {
         }
     ).catch(
         error => {
+            console.info(link)
             console.error('error:', error)
             if (errCallback) {
                 errCallback(666);
@@ -112,6 +128,7 @@ export function getJSON(link, callback, errCallback) {
             }
         ).catch(
             error => {
+                console.info(link)
                 console.error('error:', error)
                 if (errCallback) {
                     errCallback(666);
@@ -140,7 +157,8 @@ export function postData(link, data, callback, errCallback) {
         }
     ).then(
         response => {
-            if (response.status === 200) {
+            console.info('post ok ' + response.status)
+            if (response.status === 200 || response.status === 0) {
                 callback(response)
             } else if (errCallback) {
                 errCallback(response)
@@ -148,6 +166,7 @@ export function postData(link, data, callback, errCallback) {
         }
     ).catch(
         error => {
+            console.info('post error')
             console.error('error:', error)
             if (errCallback) {
                 errCallback(666);

@@ -1,53 +1,39 @@
-import * as React from 'react';
-import { TextField } from '@mui/material';
-import { Autocomplete } from '@mui/material';
-import { IconButton } from '@mui/material';
+import * as React from 'react'
+import { TextField } from '@mui/material'
+import { Autocomplete } from '@mui/material'
+import { IconButton } from '@mui/material'
 
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
 
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DoneIcon from '@mui/icons-material/Done';
+import DoneIcon from '@mui/icons-material/Done'
+import CloseIcon from '@mui/icons-material/Close'
 
-import { postData, getJSON, getData } from './utils'
-
-let priorityColors = ["black", "red", "orangered", "salmon", "orange", "goldenrod", "yellowgreen", "lawngreen", "springgreen", "lightgreen"]
-
+import DateTimeInput from './DateTimeInput'
+import { postData, getJSON, priorityColors } from './utils'
 
 class ItemDialog extends React.Component {
     constructor(props) {
         super(props)
-        let c = this.props.categories.concat([])
-        if (c.length === 0) {
-            c = ["default"]
-        }
         this.state = {
-            categories: c,
-            category: this.props.data.category ? this.props.data.category : c[0],
-            name: this.props.data.name ? this.props.data.name : '',
-            text: this.props.data.text ? this.props.data.text : '',
+            dateTo: (this.props.data.dateTo && this.props.id > 0) ? new Date(this.props.data.dateTo) : null,
+            name: (this.props.data.name && this.props.id > 0) ? this.props.data.name : '',
+            text: (this.props.data.text && this.props.id > 0) ? this.props.data.text : '',
             priority: this.props.data.priority ? this.props.data.priority : 5,
             userList: [],
             targetUser: undefined,
         }
+        console.info(this.props.data.dateTo)
         this.accepted = this.accepted.bind(this)
-        this.delete = this.delete.bind(this)
         getJSON("api.php?cmd=loginList", (json) => this.setState({ userList: json }))
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.id !== this.props.id) {
-            let c = this.props.categories.concat([])
-            if (c.length === 0) {
-                c = ["default"]
-            }
             this.setState({
-                categories: c,
-                category: this.props.data.category ? this.props.data.category : c[0],
-                name: this.props.data.name ? this.props.data.name : '',
-                text: this.props.data.text ? this.props.data.text : '',
+                dateTo: (this.props.data.dateTo && this.props.id > 0) ? new Date(this.props.data.dateTo) : null,
+                name: (this.props.data.name && this.props.id > 0) ? this.props.data.name : '',
+                text: (this.props.data.text && this.props.id > 0) ? this.props.data.text : '',
                 priority: this.props.data.priority ? this.props.data.priority : 5,
                 userList: [],
                 targetUser: undefined,
@@ -57,14 +43,22 @@ class ItemDialog extends React.Component {
     }
 
     accepted() {
-        let post = this.props.data
-        post.category = this.state.category
+        let post = JSON.parse(JSON.stringify(this.props.data))
         post.name = this.state.name
         post.text = this.state.text
         post.priority = this.state.priority
+        post.sub = undefined
+        if (this.state.dateTo !== null) {
+            post.dateTo = this.state.dateTo.getTime()
+        } else {
+            post.dateTo = undefined
+        }
         if (this.props.id === -1) {
             post.ctime = new Date().getTime()
             post.id = -1
+            if (this.props.data.id > 0) {
+                post.parentId = this.props.data.id
+            }
         }
         if (this.state.targetUser !== undefined) {
             post.login = this.state.targetUser
@@ -77,18 +71,6 @@ class ItemDialog extends React.Component {
         })
     }
 
-    delete() {
-        if (this.props.id === -1) {
-            return
-        }
-        getData('api.php?cmd=delete&id=' + this.props.id, (data) => {
-            if (this.props.onChange) {
-                this.props.onChange()
-            }
-        })
-    }
-
-
     render() {
         return (
             <div className='itemDialog'>
@@ -100,22 +82,9 @@ class ItemDialog extends React.Component {
                             }
                         }
                     }>
-                        <ArrowBackIcon />
+                        <CloseIcon />
                     </IconButton>
-                    <IconButton title='Smazat úkol' variant="contained" disabled={this.props.id <= 0} onClick={
-                        () => {
-                            if (!window.confirm("Smazat úkol: " + this.state.name + "?")) {
-                                return
-                            }
-                            this.delete()
-                            if (this.props.onClose) {
-                                this.props.onClose()
-                            }
-                        }
-                    }>
-                        <DeleteIcon />
-                    </IconButton>
-                    <IconButton title='Použít' variant="contained" disabled={this.state.category === undefined || this.state.category.length === 0 || this.state.name.length === 0} onClick={() => {
+                    <IconButton title='Použít' variant="contained" disabled={this.state.name.length === 0} onClick={() => {
                         if (this.props.onClose) {
                             this.props.onClose()
                         }
@@ -125,22 +94,6 @@ class ItemDialog extends React.Component {
                     </IconButton>
                 </div>
                 <div className="itemDialogContent">
-                    <Autocomplete
-                        id="parent"
-                        size='small'
-                        fullWidth
-                        options={this.state.userList}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Přiřadit člověku"
-                                InputProps={{
-                                    ...params.InputProps,
-                                }}
-                            />
-                        )}
-                        onChange={(event, value) => value === null ? this.setState({ targetUser: undefined }) : this.setState({ targetUser: value })}
-                    />
                     <div className='flex-row'>
                         <Select
                             title='Priorita'
@@ -153,6 +106,7 @@ class ItemDialog extends React.Component {
                                 this.setState({ priority: ev.target.value })
                             }}
                         >
+                            <MenuItem style={{ backgroundColor: 'black' }} value={0}>-</MenuItem>
                             <MenuItem style={{ backgroundColor: priorityColors[1] }} value={1}>1</MenuItem>
                             <MenuItem style={{ backgroundColor: priorityColors[2] }} value={2}>2</MenuItem>
                             <MenuItem style={{ backgroundColor: priorityColors[3] }} value={3}>3</MenuItem>
@@ -163,49 +117,38 @@ class ItemDialog extends React.Component {
                             <MenuItem style={{ backgroundColor: priorityColors[8] }} value={8}>8</MenuItem>
                             <MenuItem style={{ backgroundColor: priorityColors[9] }} value={9}>9</MenuItem>
                         </Select>
+                        <DateTimeInput
+                            variant='outlined'
+                            label='Splnit do'
+                            value={this.state.dateTo}
+                            onClear={() => this.setState({ dateTo: null })}
+                            onAccept={(val) => this.setState({ dateTo: val })}
+                        />
                         <Autocomplete
                             id="parent"
                             size='small'
                             fullWidth
-                            options={this.state.categories}
-                            disabled={this.state.targetUser !== undefined}
-                            value={this.state.category}
+                            options={this.state.userList}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Kategorie"
+                                    label="Přiřadit člověku"
                                     InputProps={{
                                         ...params.InputProps,
                                     }}
                                 />
                             )}
-                            onChange={(event, value) => value === null ? this.setState({}) : this.setState({ category: value })}
+                            onChange={(event, value) => value === null ? this.setState({ targetUser: undefined }) : this.setState({ targetUser: value })}
                         />
-                        <IconButton
-                            title='Přidat kategorii'
-                            disabled={this.state.targetUser !== undefined}
-                            size='small'
-                            onClick={
-                                () => {
-                                    let add = prompt("Nová kategorie", "");
-                                    if (add.length > 0) {
-                                        let c = this.state.categories
-                                        c.push(add)
-                                        this.setState({ categories: c, category: add })
-                                    }
-                                }
-                            }>
-                            <AddCircleIcon />
-                        </IconButton>
                     </div>
                     <TextField
                         label="Název"
                         size='small'
+                        autoFocus
                         value={this.state.name}
                         fullWidth
                         onChange={(ev) => ev.target.value === null ? this.setState({ name: '' }) : this.setState({ name: ev.target.value })}
                     />
-
                     <TextField
                         label="Text"
                         size='small'

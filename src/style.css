@@ -1,59 +1,60 @@
 /* width */
 ::-webkit-scrollbar {
-  width: 0.5rem;
+    width: 0.5rem;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 4px grey;
-  border-radius: 0.25rem;
+    box-shadow: inset 0 0 4px grey;
+    border-radius: 0.25rem;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgb(105, 105, 105, 0.75);
-  border-radius: 0.25rem;
+    background: rgb(105, 105, 105, 0.75);
+    border-radius: 0.25rem;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(105, 105, 105, 1);
+    background: rgb(105, 105, 105, 1);
 }
 
 pre {
-  white-space: pre-wrap;
-  margin-top: 0.05rem;
-  margin-bottom: 0.05rem;
+    white-space: pre-wrap;
+    margin-top: 0.05rem;
+    margin-bottom: 0.05rem;
+    overflow-wrap: break-word;
 }
 
 .flex-row {
-  display: flex;
-  gap: 0.25rem;
+    display: flex;
+    gap: 0.25rem;
 }
 
 .margin-left {
-  margin-left: auto;
+    margin-left: auto;
 }
 
 .margin-right-05rem {
-  margin-right: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 .margin-left-025rem {
-  margin-left: 0.25rem;
+    margin-left: 0.25rem;
 }
 
 .centered-vertical {
-  margin-top: auto;
-  margin-bottom: auto;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .hoverHighlighted {
-  opacity: 0.1;
+    opacity: 0.1;
 }
 
 .hoverHighlighted:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
 .vcenter {
@@ -62,183 +63,217 @@ pre {
 }
 
 .body {
-  border-radius: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 32rem;
-  margin-left: auto;
-  margin-right: auto;
-  overflow: hidden;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 48rem;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
 }
 
 .body-mobile {
-  display: flex;
-  flex-direction: column;
-  border-radius: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    height: 100dvh;
+    width: 100dvw;
+    overflow: hidden;
 }
 
 .login {
-  display: flex;
-  flex-direction: column;
-  max-width: 18rem;
-  margin-top: 0.5rem;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    max-width: 18rem;
+    margin-top: 0.5rem;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .error {
-  color: red;
-  width: 100%;
-  text-align: center;
-  margin-top: 0.5rem;
+    color: red;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.spacer {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 0.25rem;
-  padding: 0.25rem;
-  padding-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 3rem;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    padding-top: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: #444;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
 }
 
 .content {
-  width: 100%;
-  overflow: auto;
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-  padding-bottom: 0.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+    width: 100%;
+    overflow: auto;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-bottom: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .item {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
 }
 
 .itemHeader {
-  width: 100%;
-  font-weight: bold;
-  background-color: #000033;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
+    width: 100%;
+    font-weight: bold;
+    background-color: #000033;
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
 }
 
 .itemEntry {
-  width: 100%;
-  margin-top: 0.05rem;
-  margin-bottom: 0.05rem;
-  background-color: #131313;
-  border-radius: 0.25rem;
+    margin-top: 0.05rem;
+    margin-bottom: 0.05rem;
+    background-color: #181818;
+    border-radius: 0.5rem;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.itemEntry:hover {
+    border: solid darkblue 2px;
 }
 
 .itemEntryHeader {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 0.25rem;
-  padding-left: 0.25rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+    padding-left: 0.25rem;
 }
 
 .itemEntryName {
-  cursor: pointer;
+    display: flex;
+    width: 100%;
 }
 
 .itemPriority {
-  width: 1.5rem;
-  text-align: center;
-  border-radius: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    text-align: center;
+    border-radius: 0.75rem;
 }
 
 .itemDetail {
-  margin-left: 2.75rem;
-  margin-right: 0.5rem;
-  background-color: #131313;
+    margin-left: 2.75rem;
+    margin-right: 0.5rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .itemDetailContent {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 .itemDetailHeader {
-  background-color: #131313;
+    background-color: transparent;
 }
 
 .itemDetailHeaderEmpty {
-  background-color: #131313;
-  border-radius: 0.25rem;
+    background-color: transparent;
+    border-radius: 0.25rem;
 }
 
 .itemComplete {
-  color: green;
+    color: green;
 }
 
 .itemInProgress {
-  color: red;
+    color: red;
 }
 
 .itemDialog {
-  width: 100%;
+    width: 100%;
 }
 
 .itemDialogHeader {
-  margin: 0.25rem;
-  display: flex;
-  justify-content: space-between;
+    margin: 0.25rem;
+    display: flex;
+    justify-content: space-between;
 }
 
 .itemDialogContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.25rem;
 }
 
 .userPage {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .userHeader {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem;
-  font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem;
+    font-weight: bold;
 }
 
 .userContent {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .userEntry {
-  display: flex;
-  padding-left: 0.5rem;
-  background-color: #131313;
+    display: flex;
+    padding-left: 0.5rem;
+    background-color: #181818;
 }
 
 .userEntry:hover {
-  background-color: #181818;
+    background-color: #181818;
 }
 
 .userEntryPassword {
-  margin-left: auto;
-  margin-right: 0.5rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
 }
 
 .userEntryButtons {
-  margin-right: 0.1rem;
+    margin-right: 0.1rem;
+}
+
+.moveDialog {
+    display: flex;
+    flex-direction: row;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
